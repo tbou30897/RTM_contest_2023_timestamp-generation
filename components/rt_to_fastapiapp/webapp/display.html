@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Text Update</title>
+</head>
+<body>
+    <h1>Received Text:</h1>
+    <div id="displayText"></div>
+
+    <script>
+        var lastReceivedData = "";
+
+        function fetchText() {
+            fetch("/get_text/")
+            .then(response => response.json())
+            .then(data => {
+                if (data.content !== lastReceivedData) {
+                    var displayDiv = document.getElementById("displayText");
+                    var newText = document.createElement('p');
+                    newText.innerText = data.content;
+                    displayDiv.appendChild(newText);
+                    lastReceivedData = data.content;
+                }
+            })
+            .catch(error => console.error("Error fetching text:", error));
+
+            // 1秒ごとに再度テキストを取得
+            setTimeout(fetchText, 1000);
+        }
+
+        // 初回起動
+        fetchText();
+    </script>
+</body>
+</html>
