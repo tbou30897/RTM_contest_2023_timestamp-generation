@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # -*- Python -*-
 
@@ -200,6 +200,7 @@ class cos_similarity_analysis(OpenRTM_aist.DataFlowComponentBase):
     def onActivated(self, ec_id):
         self.integrated_text = ""
         self.prev_sentence = ""    
+        self.output_text = ""
         return RTC.RTC_OK
 	
     ##
@@ -240,16 +241,16 @@ class cos_similarity_analysis(OpenRTM_aist.DataFlowComponentBase):
                 summary_result = self.extract_keywords(self.integrated_text)
 
                 if len(summary_result) >= 2:
-                    output_list = [summary_result[0],summary_result[1]]
+                    self.output_list = [summary_result[0],summary_result[1]]
 
-                    output_text = f"{summary_result[0]},{summary_result[1]}"
+                    self.output_text = f"{summary_result[0]},{summary_result[1]}"
 
-                    print(output_list)
+                    print(self.output_list)
 
                     #前の文章との類似度分析
-                    similarity_mecab = self.compute_cosine_similarity_mecab(self.prev_sentence,output_text)
+                    similarity_mecab = self.compute_cosine_similarity_mecab(self.prev_sentence,self.output_text)
                     if similarity_mecab < 0.1 :
-                        self._d_summary_out.data = output_list
+                        self._d_summary_out.data = self.output_list
                         self._summary_outOut.write()
                         self.text_combined_list = []
                         self.prev_sentence = ""
@@ -259,14 +260,14 @@ class cos_similarity_analysis(OpenRTM_aist.DataFlowComponentBase):
                         self._d_summary_out.data = ["High similarity to previous sentence"]
                         self._summary_outOut.write()
                         self.text_combined_list = []
-                        self.prev_sentence = output_text    
+                        self.prev_sentence = self.output_text    
                         self.integrated_text = ""
 
                 else:
                     self._d_summary_out.data = ["The text is too short to be summarized."]
                     self._summary_outOut.write()
                     self.text_combined_list = []
-                    self.prev_sentence = output_text    
+                    self.prev_sentence = self.output_text    
                     self.integrated_text = ""
 
         return RTC.RTC_OK
